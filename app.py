@@ -2,26 +2,24 @@ import streamlit as st
 from inference_sdk import InferenceHTTPClient
 from PIL import Image
 
-# Initialize Roboflow Inference client
+# 1️⃣ اعمل تهيئة للـ client
 CLIENT = InferenceHTTPClient(
     api_url="https://serverless.roboflow.com",
-    api_key="kux79LtKQfMKceSYUNtO"  # Replace with your private API key
+    api_key="kux79LtKQfMKceSYUNtO"
 )
 
-st.title("Brain Tumor Detection using Roboflow API")
-st.write("Upload an image and the model will detect brain tumors.")
+# 2️⃣ رفع الصورة من المستخدم
+uploaded_file = st.file_uploader("ارفع صورة", type=["jpg", "jpeg", "png"])
 
-# Upload image
-uploaded_file = st.file_uploader("Upload an image", type=["jpg", "png"])
+if uploaded_file is not None:
+    # 3️⃣ حول الصورة bytes عشان تقدر تمررها للـ API
+    image_bytes = uploaded_file.read()
 
-if uploaded_file:
-    # Display uploaded image
-    img = Image.open(uploaded_file)
-    st.image(img, caption="Uploaded Image", use_column_width=True)
+    # 4️⃣ شغل الـ inference على الصورة
+    result = CLIENT.infer(image_bytes, model_id="brain-tumor-s3jcl-qqrkr/2")
 
-    # Run inference
-    with st.spinner("Running inference..."):
-        result = CLIENT.infer(uploaded_file, model_id="brain-tumor-s3jcl-qqrkr/2")  # your model ID
+    # 5️⃣ اعرض النتايج
+    st.write(result)
 
-    st.success("Inference done!")
-    st.write(result)  # Display raw JSON results
+    # 6️⃣ اعرض الصورة نفسها
+    st.image(Image.open(uploaded_file), caption="الصورة المرفوعة")
